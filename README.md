@@ -32,6 +32,24 @@ alternatively you can only add it during your CI build, for example in `package.
 
 nothing else is required, no token sharing, no REST API calls etc. 
 
+## Options
+| Option Name   | Type    | Default                  | Description                                                                                                                                                                                                                                                                                          |
+| :------------ | :------ | :----------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `relativeDirectories` | Boolean | false | Print file paths relative to the project directory, instead of printing the absolute path of the file. |
+
+The options can be defined in your `jest.config.js` like so:
+```js
+module.exports = {
+  reporters: [
+    "default",
+    ["jest-github-actions-reporter", {
+      relativeDirectories: true,
+    }]
+  ],
+  testLocationInResults: true
+};
+```
+
 ## Example
 
 `.github/workflows/CI.yaml`

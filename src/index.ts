@@ -1,48 +1,58 @@
 import { issueCommand, issue } from "@actions/core/lib/command";
 
+interface GitHubActionsReporterOptions {
+    relativeDirectories?: boolean;
+}
+
 class GitHubActionsReporter implements jest.Reporter {
-  constructor(public globalConfig: jest.GlobalConfig, private options: any) {}
+    private regex = /\((.+?):(\d+):(\d+)\)/;
 
-  public onTestStart(test: jest.Test) {}
+    private options: GitHubActionsReporterOptions = {
+        relativeDirectories: false,
+    };
 
-  public onTestResult(
-    test: jest.Test,
-    testResult: jest.TestResult,
-    results: jest.AggregatedResult
-  ) {}
-
-  public onRunComplete(
-    contexts: Set<jest.Context>,
-    results: jest.AggregatedResult
-  ) {
-    issue("group", "Jest Annotations");
-
-    if (results.numFailedTests > 0) {
-      for (const testResults of results.testResults.filter(
-        x => x.numFailingTests > 0
-      )) {
-        for (const testResult of testResults.testResults) {
-          for (const failureMessage of testResult.failureMessages) {
-            const x = /\((.+?):(\d+):(\d+)\)/;
-            const match = x.exec(failureMessage);
-            if (match && match.length > 2) {
-              issueCommand(
-                "error",
-                {
-                  file: match[1],
-                  line: match[2],
-                  col: match[3]
-                },
-                failureMessage
-              );
-            }
-          }
-        }
-      }
+    constructor(public globalConfig: jest.GlobalConfig, options: GitHubActionsReporterOptions) {
+        Object.assign(this.options, options);
     }
 
-    issue("endgroup");
-  }
+    public onTestStart(test: jest.Test) {}
+
+    public onTestResult(test: jest.Test, testResult: jest.TestResult, result: jest.AggregatedResult) {}
+
+    public onRunComplete(contexts: Set<jest.Context>, result: jest.AggregatedResult) {
+        issue("group", "Jest Annotations");
+
+        if (result.numFailedTests > 0) {
+            result.testResults
+                .filter(x => x.numFailingTests > 0)
+                .forEach(({ testResults }: jest.TestResult) => {
+                    for (const testResult of testResults) {
+                        this.printTestResult(testResult);
+                    }
+                });
+        }
+
+        issue("endgroup");
+    }
+
+    private printTestResult(testResult: jest.AssertionResult) {
+        for (const failureMessage of testResult.failureMessages) {
+            const match = this.regex.exec(failureMessage);
+            if (match && match.length > 2) {
+                const args = {
+                    file: match[1],
+                    line: match[2],
+                    col: match[3]
+                };
+
+                if(this.options.relativeDirectories !== false) {
+                    args.file = args.file.substr(process.cwd().length + 1);
+                }
+
+                issueCommand("error", args, failureMessage);
+            }
+        }
+    }
 }
 
 module.exports = GitHubActionsReporter;
