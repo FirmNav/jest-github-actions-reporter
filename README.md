@@ -34,7 +34,7 @@ alternatively you can only add it during your CI build, for example in `package.
 | Option Name               | Type    | Default | Description                                                                                            |
 | :------------------------ | :------ | :------ | :----------------------------------------------------------------------------------------------------- |
 | `relativeDirectories`     | Boolean | false   | Print file paths relative to the project directory, instead of printing the absolute path of the file. |
-| `postCodeCoverageComment` | Boolean | false   | Post code coverage table as a comment on PR's. **NOTE: Requires suppling a Github Access token**       |
+| `postCodeCoverageComment` | Boolean | false   | Post code coverage table as a comment on PR's. **NOTE: Requires supplying a Github Access token**       |
 
 The options can be defined in your `jest.config.js` like so:
 ```js
@@ -80,7 +80,7 @@ jobs:
 ```
 
 ### Setting a github access token
-When using github actions, the GITHUB_TOKEN secret is automaticly available, so simply supply it as an input.
+When using github actions, the GITHUB_TOKEN secret is automatically available, so simply supply it as an input.
 ```yaml
 with:
   github-token: ${{ secrets.GITHUB_TOKEN }}
