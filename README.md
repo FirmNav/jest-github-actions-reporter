@@ -30,12 +30,11 @@ alternatively you can only add it during your CI build, for example in `package.
 }
 ```
 
-nothing else is required, no token sharing, no REST API calls etc. 
-
 ## Options
-| Option Name   | Type    | Default                  | Description                                                                                                                                                                                                                                                                                          |
-| :------------ | :------ | :----------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `relativeDirectories` | Boolean | false | Print file paths relative to the project directory, instead of printing the absolute path of the file. |
+| Option Name               | Type    | Default | Description                                                                                            |
+| :------------------------ | :------ | :------ | :----------------------------------------------------------------------------------------------------- |
+| `relativeDirectories`     | Boolean | false   | Print file paths relative to the project directory, instead of printing the absolute path of the file. |
+| `postCodeCoverageComment` | Boolean | false   | Post code coverage table as a comment on PR's. **NOTE: Requires suppling a Github Access token**       |
 
 The options can be defined in your `jest.config.js` like so:
 ```js
@@ -80,6 +79,13 @@ jobs:
         CI: true
 ```
 
+### Setting a github access token
+When using github actions, the GITHUB_TOKEN secret is automaticly available, so simply supply it as an input.
+```yaml
+with:
+  github-token: ${{ secrets.GITHUB_TOKEN }}
+``` 
+
 ## How does this work?
 
-GitHub Actions supports a number of commands that allow you to provide rich experiences without custom REST API calls etc. See the [docs](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/development-tools-for-github-actions#set-an-error-message-error) for more information.
+GitHub Actions supports a number of commands that allow you to provide rich experiences. See the [docs](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/development-tools-for-github-actions#set-an-error-message-error) for more information.
