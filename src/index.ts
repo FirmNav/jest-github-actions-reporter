@@ -40,11 +40,11 @@ class GitHubActionsReporter implements jest.Reporter {
 
         if (this.options.postCodeCoverageComment) {
             if (!result.coverageMap) {
-                console.error(
+                console.warn(
                     "jest-github-actions-reporter was instructed to post code coverage comment, but code coverage is not enabled in jest. \n" +
-                        "Set collectCoverage to true or postCodeCoverageComment to false."
+                        "Skipping posting comment. Set collectCoverage to true or postCodeCoverageComment to false, in order to fix this warning."
                 );
-                process.exit(50);
+                return;
             }
 
             console.log("Posting code coverage results as comment");

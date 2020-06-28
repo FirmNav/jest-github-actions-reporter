@@ -28,9 +28,9 @@ class GitHubActionsReporter {
         command_1.issue("endgroup");
         if (this.options.postCodeCoverageComment) {
             if (!result.coverageMap) {
-                console.error("jest-github-actions-reporter was instructed to post code coverage comment, but code coverage is not enabled in jest. \n" +
-                    "Set collectCoverage to true or postCodeCoverageComment to false.");
-                process.exit(50);
+                console.warn("jest-github-actions-reporter was instructed to post code coverage comment, but code coverage is not enabled in jest. \n" +
+                    "Skipping posting comment. Set collectCoverage to true or postCodeCoverageComment to false, in order to fix this warning.");
+                return;
             }
             console.log("Posting code coverage results as comment");
             code_coverage_1.postCodeCoverage(result.coverageMap).catch((err) => {
