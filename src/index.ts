@@ -1,7 +1,10 @@
 import { issueCommand, issue } from "@actions/core/lib/command";
+import { postCodeCoverage } from "./code-coverage";
+import { symlinkSync } from "fs";
 
 interface GitHubActionsReporterOptions {
     relativeDirectories?: boolean;
+    postCodeCoverageComment?: boolean;
 }
 
 class GitHubActionsReporter implements jest.Reporter {
@@ -9,6 +12,7 @@ class GitHubActionsReporter implements jest.Reporter {
 
     private options: GitHubActionsReporterOptions = {
         relativeDirectories: false,
+        postCodeCoverageComment: false,
     };
 
     constructor(public globalConfig: jest.GlobalConfig, options: GitHubActionsReporterOptions) {
@@ -24,7 +28,7 @@ class GitHubActionsReporter implements jest.Reporter {
 
         if (result.numFailedTests > 0) {
             result.testResults
-                .filter(x => x.numFailingTests > 0)
+                .filter((x) => x.numFailingTests > 0)
                 .forEach(({ testResults }: jest.TestResult) => {
                     for (const testResult of testResults) {
                         this.printTestResult(testResult);
@@ -33,6 +37,23 @@ class GitHubActionsReporter implements jest.Reporter {
         }
 
         issue("endgroup");
+
+        if (this.options.postCodeCoverageComment) {
+            if (!result.coverageMap) {
+                console.error(
+                    "jest-github-actions-reporter was instructed to post code coverage comment, but code coverage is not enabled in jest. \n" +
+                        "Set collectCoverage to true or postCodeCoverageComment to false."
+                );
+                process.exit(50);
+            }
+
+            console.log("Posting code coverage results as comment");
+
+            postCodeCoverage(result.coverageMap).catch((err: Error) => {
+                console.error(err.message);
+                process.exit(51);
+            });
+        }
     }
 
     private printTestResult(testResult: jest.AssertionResult) {
@@ -42,10 +63,10 @@ class GitHubActionsReporter implements jest.Reporter {
                 const args = {
                     file: match[1],
                     line: match[2],
-                    col: match[3]
+                    col: match[3],
                 };
 
-                if(this.options.relativeDirectories !== false) {
+                if (this.options.relativeDirectories !== false) {
                     args.file = args.file.substr(process.cwd().length + 1);
                 }
 
